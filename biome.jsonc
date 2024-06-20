@@ -1,0 +1,80 @@
+{
+	"$schema": "https://biomejs.dev/schemas/1.8.1/schema.json",
+	"files": {
+		// relative path from the workspace root
+		"ignore": [".moon", ".yarn/plugins/**"]
+	},
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"defaultBranch": "main",
+		"useIgnoreFile": true
+	},
+	"organizeImports": {
+		"enabled": true
+	},
+	"formatter": {
+		"enabled": true,
+		"lineWidth": 120
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true,
+			"style": {
+				"useFilenamingConvention": {
+					"level": "warn",
+					"options": {
+						"strictCase": false,
+						"requireAscii": true,
+						"filenameCases": ["kebab-case"]
+					}
+				},
+				"noDefaultExport": "warn",
+				"noNegationElse": "warn",
+				"useBlockStatements": "warn",
+				"useCollapsedElseIf": "warn",
+				"useConsistentArrayType": {
+					"level": "warn",
+					"options": {
+						"syntax": "shorthand"
+					}
+				},
+				"useForOf": "warn",
+				"useFragmentSyntax": "warn",
+				"useShorthandArrayType": "warn",
+				"useShorthandAssign": "warn"
+			},
+			"complexity": {
+				"useLiteralKeys": "off"
+			},
+			"correctness": {
+				"useArrayLiterals": "warn",
+				"noUnusedVariables": "warn"
+			},
+			"nursery": {
+				"useSortedClasses": "off", // why-not: eslint-plugin-tailwindcss does this
+				// ↓ We want to enable this rule, but we can't. Because it doesn't support monorepos at the moment. It's because it can't see the nearest package.json. This issue has been reported to the Issue: https://github.com/biomejs/biome/issues/2010
+				// "noUndeclaredDependencies": "error"`
+				"noDuplicateElseIf": "warn",
+				"noDuplicateJsonKeys": "warn",
+				"noEvolvingTypes": "warn",
+				"noRestrictedImports": {
+					"level": "warn",
+					"options": {
+						"paths": {
+							"fs": "Use fs/promises instead of fs",
+							"node:fs": "Use node:fs/promises instead of node:fs",
+							"dns": "Use dns/promises instead of dns",
+							"node:dns": "Use node:dns/promises instead of node:dns"
+						}
+					}
+				},
+				"noUselessUndefinedInitialization": "warn",
+				"useConsistentBuiltinInstantiation": "warn",
+				"useDefaultSwitchClause": "warn",
+				"useExplicitLengthCheck": "warn"
+			}
+		}
+	}
+}
