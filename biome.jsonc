@@ -1,8 +1,8 @@
 {
-	"$schema": "https://biomejs.dev/schemas/1.8.1/schema.json",
+	"$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
 	"files": {
 		// relative path from the workspace root
-		"ignore": [".moon", ".yarn/plugins/**"]
+		"ignore": [".moon", ".yarn/plugins/**", "index.js"]
 	},
 	"vcs": {
 		"enabled": true,

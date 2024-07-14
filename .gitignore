@@ -12,3 +12,7 @@
 #!.yarn/cache
 .pnp.*
 /node_modules
+
+# moon
+.moon/cache
+.moon/docker

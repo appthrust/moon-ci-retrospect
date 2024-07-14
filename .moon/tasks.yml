@@ -1,0 +1,22 @@
+$schema: https://moonrepo.dev/schemas/tasks.json
+
+tasks:
+  typecheck:
+    command: tsc --noEmit
+    inputs:
+      - "**/*.ts"
+
+  lint:
+    command: biome ci
+    inputs:
+      - "**/*.ts"
+      - "**/*.json"
+      - "**/*.js"
+
+  test:
+    command: yarn vitest --run
+    inputs:
+      - index.js
+      - index.ts
+      - tests/**/*
+

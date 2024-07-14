@@ -1,0 +1,9 @@
+.moon/docker
+.moon/cache/*
+.moon/cache/**/*
+!.moon/cache/ciReport.json
+!.moon/cache/states/
+!.moon/cache/states/*/
+!.moon/cache/states/*/*/
+!.moon/cache/states/*/*/stderr.log
+!.moon/cache/states/*/*/stdout.log
