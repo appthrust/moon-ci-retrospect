@@ -1,0 +1,20 @@
+$schema: https://moonrepo.dev/schemas/tasks.json
+
+tasks:
+  foo:
+    command: echo foo1 && echo foo2 > /dev/stderr
+    inputs: []
+
+  bar:
+    command: echo bar1 && echo bar2 > /dev/stderr
+    inputs: []
+
+  baz:
+    command: echo baz1 && echo baz2 > /dev/stderr
+    inputs: []
+
+  make-error:
+    command: |
+      echo "This is an error message" > /dev/stderr && \
+      exit 1
+    inputs: []

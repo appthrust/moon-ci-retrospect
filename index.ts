@@ -3,6 +3,10 @@ import { readFile, stat } from "node:fs/promises";
 async function main(): Promise<void> {
 	const workspaceRoot = await getWorkspaceRoot();
 	const ciReport = await readCiReport(workspaceRoot);
+	if (!ciReport) {
+		console.log("CI report file does not exist. No CI tasks may have been executed.");
+		return;
+	}
 	for (const action of ciReport.actions) {
 		const taskInfo = taskInfoOf(action);
 		if (!taskInfo) {
@@ -33,8 +37,11 @@ async function getWorkspaceRoot(): Promise<string> {
 	return process.cwd();
 }
 
-async function readCiReport(workspaceRoot: string): Promise<CiReport> {
+async function readCiReport(workspaceRoot: string): Promise<CiReport | undefined> {
 	const ciReportPath = `${workspaceRoot}/.moon/cache/ciReport.json`;
+	if (!(await fileExists(ciReportPath))) {
+		return;
+	}
 	const ciReportFile = await readFileContent(ciReportPath);
 	return JSON.parse(ciReportFile) as CiReport;
 }

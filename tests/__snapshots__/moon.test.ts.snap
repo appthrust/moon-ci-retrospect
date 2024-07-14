@@ -1,0 +1,81 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`basic 1`] = `
+"::group::[42m PASS [49m [1mc:bar[22m
+[34m$ echo bar1 && echo bar2 > /dev/stderr[39m
+[48;5;236m　[32m⏺[39m STDOUT　[49m
+bar1
+[48;5;236m　[31m⏺[39m STDERR　[49m
+bar2
+::endgroup::
+::group::[42m PASS [49m [1mc:baz[22m
+[34m$ echo baz1 && echo baz2 > /dev/stderr[39m
+[48;5;236m　[32m⏺[39m STDOUT　[49m
+baz1
+[48;5;236m　[31m⏺[39m STDERR　[49m
+baz2
+::endgroup::
+::group::[42m PASS [49m [1mc:foo[22m
+[34m$ echo foo1 && echo foo2 > /dev/stderr[39m
+[48;5;236m　[32m⏺[39m STDOUT　[49m
+foo1
+[48;5;236m　[31m⏺[39m STDERR　[49m
+foo2
+::endgroup::
+::group::[41m FAIL [49m [1mc:make-error[22m
+[48;5;236m　[31m⏺[39m STDERR　[49m
+This is an error message
+::endgroup::
+::group::[42m PASS [49m [1mb:bar[22m
+[34m$ echo bar1 && echo bar2 > /dev/stderr[39m
+[48;5;236m　[32m⏺[39m STDOUT　[49m
+bar1
+[48;5;236m　[31m⏺[39m STDERR　[49m
+bar2
+::endgroup::
+::group::[42m PASS [49m [1mb:baz[22m
+[34m$ echo baz1 && echo baz2 > /dev/stderr[39m
+[48;5;236m　[32m⏺[39m STDOUT　[49m
+baz1
+[48;5;236m　[31m⏺[39m STDERR　[49m
+baz2
+::endgroup::
+::group::[42m PASS [49m [1mb:foo[22m
+[34m$ echo foo1 && echo foo2 > /dev/stderr[39m
+[48;5;236m　[32m⏺[39m STDOUT　[49m
+foo1
+[48;5;236m　[31m⏺[39m STDERR　[49m
+foo2
+::endgroup::
+::group::[41m FAIL [49m [1mb:make-error[22m
+[48;5;236m　[31m⏺[39m STDERR　[49m
+This is an error message
+::endgroup::
+::group::[42m PASS [49m [1ma:bar[22m
+[34m$ echo bar1 && echo bar2 > /dev/stderr[39m
+[48;5;236m　[32m⏺[39m STDOUT　[49m
+bar1
+[48;5;236m　[31m⏺[39m STDERR　[49m
+bar2
+::endgroup::
+::group::[42m PASS [49m [1ma:baz[22m
+[34m$ echo baz1 && echo baz2 > /dev/stderr[39m
+[48;5;236m　[32m⏺[39m STDOUT　[49m
+baz1
+[48;5;236m　[31m⏺[39m STDERR　[49m
+baz2
+::endgroup::
+::group::[42m PASS [49m [1ma:foo[22m
+[34m$ echo foo1 && echo foo2 > /dev/stderr[39m
+[48;5;236m　[32m⏺[39m STDOUT　[49m
+foo1
+[48;5;236m　[31m⏺[39m STDERR　[49m
+foo2
+::endgroup::
+::group::[41m FAIL [49m [1ma:make-error[22m
+[48;5;236m　[31m⏺[39m STDERR　[49m
+This is an error message
+::endgroup::"
+`;
+
+exports[`no-tasks 1`] = `"CI report file does not exist. No CI tasks may have been executed."`;
