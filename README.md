@@ -25,7 +25,7 @@ jobs:
       - uses: "moonrepo/setup-toolchain@v0"
       - run: "moon ci --color"
       # Add this↓
-      - uses: appthrust/moon-ci-retrospect@v0
+      - uses: appthrust/moon-ci-retrospect@v1
         if: success() || failure()
 ```
 
