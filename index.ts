@@ -1,11 +1,13 @@
 import { readFile, stat } from "node:fs/promises";
 
-async function main(): Promise<void> {
+async function main(): Promise<boolean> {
+	let anyErrors = false;
+
 	const workspaceRoot = await getWorkspaceRoot();
 	const ciReport = await readCiReport(workspaceRoot);
 	if (!ciReport) {
 		console.log("CI report file does not exist. No CI tasks may have been executed.");
-		return;
+		return anyErrors;
 	}
 	for (const action of ciReport.actions) {
 		const taskInfo = taskInfoOf(action);
@@ -14,6 +16,7 @@ async function main(): Promise<void> {
 		}
 		const { stdout, stderr } = await readStatus({ workspaceRoot, taskInfo });
 		const { project, task, command, status } = taskInfo;
+		anyErrors = anyErrors || status === "failed";
 		const target = `${project}:${task}`;
 		writeGroup(`${statusBadges[status]} ${bold(target)}`, ({ println }) => {
 			if (command) {
@@ -31,6 +34,7 @@ async function main(): Promise<void> {
 			}
 		});
 	}
+	return anyErrors;
 }
 
 async function getWorkspaceRoot(): Promise<string> {
@@ -195,9 +199,16 @@ type Meta =
 			type: "archive-creation" | "hash-generation" | "no-operation" | "output-hydration";
 	  };
 
+let anyErrors;
+
 try {
-	await main();
+	anyErrors = await main();
 } catch (error) {
 	console.error(error);
 	process.exit(0);
+}
+
+if (anyErrors === true) {
+	console.error("Some tasks failed. Please check the output above.");
+	process.exit(1);
 }
