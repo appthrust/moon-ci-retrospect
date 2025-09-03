@@ -1,27 +1,31 @@
 {
-	"name": "@appthrust/moon-ci-retrospect",
-	"version": "0.0.0-development",
-	"description": "",
-	"license": "MIT",
-	"author": "suin",
-	"private": true,
-	"type": "module",
-	"devDependencies": {
-		"@actions/core": "^1.10.1",
-		"@biomejs/biome": "^1.8.3",
-		"@tsconfig/node20": "^20.1.4",
-		"@tsconfig/strictest": "^2.0.5",
-		"@types/node": "^20.14.6",
-		"ansi-to-html": "^0.7.2",
-		"execa": "^9.3.0",
-		"tsx": "^4.15.6",
-		"typescript": "^5.4.5",
-		"vitest": "^2.0.2"
-	},
-	"scripts": {
-		"dev": "tsc -w",
-		"build": "tsc",
-		"test": "vitest"
-	},
-	"packageManager": "yarn@4.3.1"
+  "name": "@appthrust/moon-ci-retrospect",
+  "version": "0.0.0-development",
+  "description": "",
+  "license": "MIT",
+  "author": "suin",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@actions/core": "^1.10.1",
+    "@moonrepo/dev": "^3.1.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.8.3",
+    "@moonrepo/types": "^1.32.0",
+    "@tsconfig/node20": "^20.1.4",
+    "@tsconfig/strictest": "^2.0.5",
+    "@types/node": "^20.14.6",
+    "ansi-to-html": "^0.7.2",
+    "execa": "^9.3.0",
+    "tsx": "^4.15.6",
+    "typescript": "^5.4.5",
+    "vitest": "^2.0.2"
+  },
+  "scripts": {
+    "dev": "tsc -w",
+    "build": "tsc",
+    "test": "vitest"
+  },
+  "packageManager": "yarn@4.3.1"
 }
