@@ -14,9 +14,11 @@ import type {
 
 async function loadReport(workspaceRoot: string): Promise<RunReport | null> {
   for (const fileName of ["ciReport.json", "runReport.json"]) {
-    const reportPath = path.join(workspaceRoot, ".moon/cache", fileName);
+    const localPath = path.join(".moon/cache", fileName);
 
-    core.debug(`Finding run report at ${reportPath}`);
+    const reportPath = path.join(workspaceRoot, localPath);
+
+    core.debug(`Finding run report at ${localPath}`);
 
     if (await fileExists(reportPath)) {
       core.debug("Found!");
