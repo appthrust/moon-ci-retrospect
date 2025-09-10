@@ -1,7 +1,9 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`basic 1`] = `
-"::group::[42m PASS [49m [1mc:bar[22m
+"::debug::Finding run report at .moon/cache/ciReport.json
+::debug::Found!
+::group::[42m PASS [49m [1mc:bar[22m
 [34m$ echo bar1 && echo bar2 > /dev/stderr[39m
 [48;5;236m　[32m⏺[39m STDOUT　[49m
 bar1
@@ -78,4 +80,8 @@ This is an error message
 ::endgroup::"
 `;
 
-exports[`no-tasks 1`] = `"CI report file does not exist. No CI tasks may have been executed."`;
+exports[`no-tasks 1`] = `
+"::debug::Finding run report at .moon/cache/ciReport.json
+::debug::Finding run report at .moon/cache/runReport.json
+::warning::Run report does not exist, has \`moon ci\` or \`moon run\` ran?"
+`;
