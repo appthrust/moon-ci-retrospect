@@ -1,127 +1,139 @@
 import { readFile, stat } from "node:fs/promises";
+import path from "node:path";
+
+import * as core from "@actions/core";
+
+import { parseJson } from "@moonrepo/dev";
+
+import type { Action, ActionStatus, OperationMetaTaskExecution, RunReport } from "@moonrepo/types";
+
+async function loadReport(workspaceRoot: string): Promise<RunReport | null> {
+	for (const fileName of ["ciReport.json", "runReport.json"]) {
+		const localPath = path.join(".moon/cache", fileName);
+
+		const reportPath = path.join(workspaceRoot, localPath);
+
+		core.debug(`Finding run report at ${localPath}`);
+
+		if (await fileExists(reportPath)) {
+			core.debug("Found!");
+
+			return parseJson<RunReport>(reportPath);
+		}
+	}
+
+	return null;
+}
 
 async function main(): Promise<void> {
-	const workspaceRoot = await getWorkspaceRoot();
-	const ciReport = await readCiReport(workspaceRoot);
-	if (!ciReport) {
-		console.log("CI report file does not exist. No CI tasks may have been executed.");
+	const root = process.cwd();
+
+	const report = await loadReport(root);
+
+	if (!report) {
+		core.warning("Run report does not exist, has `moon ci` or `moon run` ran?");
+
 		return;
 	}
-	for (const action of ciReport.actions) {
-		const taskInfo = taskInfoOf(action);
-		if (!taskInfo) {
+
+	for (const action of report.actions) {
+		if (action.node.action !== "run-task") {
 			continue;
 		}
-		const { stdout, stderr } = await readStatus({ workspaceRoot, taskInfo });
-		const { project, task, command, status } = taskInfo;
+
+		const { project, task } = parseTarget(action.node.params.target);
 		const target = `${project}:${task}`;
-		writeGroup(`${statusBadges[status]} ${bold(target)}`, ({ println }) => {
-			if (command) {
-				println(blue(`$ ${command}`));
-			}
-			const hasStdout = stdout.trim() !== "";
-			const hasStderr = stderr.trim() !== "";
-			if (hasStdout) {
-				println(stdoutBadge);
-				println(stdout);
-			}
-			if (hasStderr) {
-				println(stderrBadge);
-				println(stderr);
-			}
-		});
+
+		const command = commandOf(action);
+
+		const { stdout, stderr } = await readStatus(root, { project, task });
+
+		const hasStdout = stdout.trim() !== "";
+		const hasStderr = stderr.trim() !== "";
+
+		core.startGroup(`${statusBadges[action.status]} ${bold(target)}`);
+
+		if (typeof command === "string") {
+			console.log(blue(`$ ${command}`));
+		}
+
+		if (hasStdout) {
+			console.log(stdBadges.out);
+			console.log(stdout);
+		}
+
+		if (hasStderr) {
+			console.log(stdBadges.err);
+			console.log(stderr);
+		}
+
+		core.endGroup();
 	}
 }
 
-async function getWorkspaceRoot(): Promise<string> {
-	return process.cwd();
+interface TargetIdentity {
+	task: (string & {}) | "unknown";
+	project: (string & {}) | "unknown";
 }
 
-async function readCiReport(workspaceRoot: string): Promise<CiReport | undefined> {
-	const ciReportPath = `${workspaceRoot}/.moon/cache/ciReport.json`;
-	if (!(await fileExists(ciReportPath))) {
-		return;
-	}
-	const ciReportFile = await readFileContent(ciReportPath);
-	return JSON.parse(ciReportFile) as CiReport;
-}
-
-function taskInfoOf(action: Action): undefined | TaskInfo {
-	if (action.node.action !== "run-task") {
-		return undefined;
-	}
-	const { project, task } = parseTarget(action.node.params.target);
-	return {
-		project,
-		task,
-		command: commandOf(action),
-		status: action.status,
-	};
-}
-
-type TaskInfo = {
-	project: string;
-	task: string;
-	command: undefined | string;
-	status: "failed" | "passed" | "skipped";
-};
-
-function parseTarget(target: string): { project: string; task: string } {
+function parseTarget(target: string): TargetIdentity {
 	const parts = target.split(":");
+
 	const project = parts[0] ?? "unknown";
 	const task = parts[1] ?? "unknown";
+
 	return { project, task };
 }
 
-function commandOf(action: Action): string | undefined {
+function commandOf(action: Action): OperationMetaTaskExecution["command"] {
 	for (const operation of action.operations) {
 		if (operation.meta.type === "task-execution") {
 			return operation.meta.command;
 		}
 	}
+
 	return undefined;
 }
 
-async function readStatus({
-	workspaceRoot,
-	taskInfo,
-}: { workspaceRoot: string; taskInfo: TaskInfo }): Promise<{ stdout: string; stderr: string }> {
-	const { project, task } = taskInfo;
+async function readStatus(
+	workspaceRoot: string,
+	{ project, task }: TargetIdentity,
+): Promise<{ stdout: string; stderr: string }> {
 	const statusDir = `${workspaceRoot}/.moon/cache/states/${project}/${task}`;
+
 	const stdoutPath = `${statusDir}/stdout.log`;
 	const stderrPath = `${statusDir}/stderr.log`;
-	const stdout = (await fileExists(stdoutPath)) ? await readFileContent(stdoutPath) : "";
-	const stderr = (await fileExists(stderrPath)) ? await readFileContent(stderrPath) : "";
+
+	const stdout = (await fileExists(stdoutPath)) ? await readFile(stdoutPath, { encoding: "utf8" }) : "";
+
+	const stderr = (await fileExists(stderrPath)) ? await readFile(stderrPath, { encoding: "utf8" }) : "";
+
 	return { stdout, stderr };
 }
 
 async function fileExists(path: string): Promise<boolean> {
 	try {
 		await stat(path);
+
 		return true;
 	} catch {
 		return false;
 	}
 }
 
-async function readFileContent(path: string): Promise<string> {
-	return await readFile(path, { encoding: "utf8" });
-}
-
-function writeGroup(title: string, inner: (params: { println: (output: string) => void }) => void): void {
-	console.log(`::group::${title}`);
-	inner({
-		println(output) {
-			console.log(output);
-		},
-	});
-	console.log("::endgroup::");
-}
-
-const statusBadges: Record<Action["status"], string> = {
+const statusBadges: Record<ActionStatus, string> = {
+	running: bgGreen(" RUNNING "),
 	passed: bgGreen(" PASS "),
+
 	failed: bgRed(" FAIL "),
+	"timed-out": bgRed(" TIMED OUT "),
+	aborted: bgRed(" ABORTED "),
+	invalid: bgRed(" INVALID "),
+	"failed-and-abort": bgRed(" FAILED AND ABORT "),
+
 	skipped: bgBlue(" SKIP "),
+	cached: bgBlue(" CACHED "),
+	"cached-from-remote": bgBlue(" REMOTE CACHED "),
 };
 
 function bgGreen(text: string): string {
@@ -156,44 +168,10 @@ function blue(text: string): string {
 	return `\u001b[34m${text}\u001b[39m`;
 }
 
-const stdoutBadge = bgDarkGray(`　${green("⏺")} STDOUT　`);
-const stderrBadge = bgDarkGray(`　${red("⏺")} STDERR　`);
-
-type CiReport = {
-	actions: Action[];
-};
-
-type Action = {
-	label: string;
-	nodeIndex: number;
-	status: "failed" | "passed" | "skipped";
-	node: Node;
-	operations: Operation[];
-};
-
-type Node =
-	| {
-			action: "run-task";
-			params: {
-				target: string;
-			};
-	  }
-	| {
-			action: "sync-workspace" | "setup-tool" | "install-deps" | "sync-project" | "install-project-deps";
-	  };
-
-type Operation = {
-	meta: Meta;
-};
-
-type Meta =
-	| {
-			type: "task-execution";
-			command: string;
-	  }
-	| {
-			type: "archive-creation" | "hash-generation" | "no-operation" | "output-hydration";
-	  };
+const stdBadges = {
+	out: bgDarkGray(`　${green("⏺")} STDOUT　`),
+	err: bgDarkGray(`　${red("⏺")} STDERR　`),
+} as const;
 
 try {
 	await main();

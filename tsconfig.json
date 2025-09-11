@@ -3,6 +3,8 @@
 	"files": ["index.ts"],
 	"compilerOptions": {
 		"inlineSourceMap": true,
-		"declaration": false
+		"declaration": false,
+		"module": "node16",
+		"moduleResolution": "node16"
 	}
 }

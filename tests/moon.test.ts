@@ -2,7 +2,7 @@ import * as path from "node:path";
 import { $ } from "execa";
 import { expect, test } from "vitest";
 
-const indexJs = path.resolve("index.js");
+const indexJs = path.resolve("dist/index.js");
 
 test("basic", async () => {
 	const cwd = path.join(import.meta.dirname, "workspaces/basic");
