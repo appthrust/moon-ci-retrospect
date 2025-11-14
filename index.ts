@@ -77,11 +77,11 @@ interface TargetIdentity {
 }
 
 function encodeComponent(component: string): string {
-	component = component.replaceAll("/", "-");
-	component = component.replace(/[.-]+$/, '');
-	component = component.replace(/^[.-]+/, '');
+	let encoded = component.replaceAll("/", "-");
+	encoded = encoded.replace(/[.-]+$/, "");
+	encoded = encoded.replace(/^[.-]+/, "");
 
-	return component;
+	return encoded;
 }
 
 function parseTarget(target: string): TargetIdentity {
