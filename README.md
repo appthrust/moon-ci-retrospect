@@ -36,6 +36,8 @@ jobs:
       - name: "Collect/retrospect on results"
         uses: "appthrust/moon-ci-retrospect@v2"
         if: success() || failure()
+        with:
+          skipCached: true # Optional: hide cached tasks from output
 ```
 
 ### On any workflow that executes a task through Moon
@@ -67,3 +69,7 @@ jobs:
 ```
 
 By including this action in your workflow, you can enhance the visibility of test results, making it easier to diagnose and address issues that arise during continuous integration.
+
+## Inputs
+
+- `skipCached` - Skip displaying stdout and stderr of cached tasks (default: `false`)

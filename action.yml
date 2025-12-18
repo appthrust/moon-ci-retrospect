@@ -1,6 +1,10 @@
 name: Moonrepo CI Retrospect
 description: Displays the results of `moon ci` in an easy-to-understand format.
-inputs: {}
+inputs:
+  skipCached:
+    description: 'Skip displaying cached and remote-cached tasks'
+    required: false
+    default: 'false'
 outputs: {}
 runs:
   using: node20
