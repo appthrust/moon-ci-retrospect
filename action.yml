@@ -3,5 +3,5 @@ description: Displays the results of `moon ci` in an easy-to-understand format.
 inputs: {}
 outputs: {}
 runs:
-  using: node20
+  using: node24
   main: dist/index.js
