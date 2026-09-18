@@ -36,6 +36,8 @@ async function main(): Promise<void> {
 		return;
 	}
 
+	const skipCached = Boolean(core.getInput("skipCached"))
+
 	for (const action of report.actions) {
 		if (action.node.action !== "run-task") {
 			continue;
@@ -55,6 +57,11 @@ async function main(): Promise<void> {
 
 		if (typeof command === "string") {
 			console.log(blue(`$ ${command}`));
+		}
+
+		if (skipCached && (action.status === 'cached' || action.status === 'cached-from-remote')) {
+			core.endGroup();
+			continue
 		}
 
 		if (hasStdout) {

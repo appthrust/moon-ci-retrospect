@@ -17,3 +17,17 @@ test("no-tasks", async () => {
 	expect(stdout).toMatchSnapshot();
 	expect(stderr).toBe("");
 });
+
+test("skip-cached", async () => {
+	const cwd = path.join(import.meta.dirname, "workspaces/cached-tasks");
+	const { stdout, stderr } = await $({ cwd, env: { INPUT_SKIPCACHED: "true" } })` node ${indexJs}`;
+	expect(stdout).toMatchSnapshot();
+	expect(stderr).toBe("");
+});
+
+test("dont-skip-cached", async () => {
+	const cwd = path.join(import.meta.dirname, "workspaces/cached-tasks");
+	const { stdout, stderr } = await $({ cwd })`node ${indexJs}`;
+	expect(stdout).toMatchSnapshot();
+	expect(stderr).toBe("");
+});
