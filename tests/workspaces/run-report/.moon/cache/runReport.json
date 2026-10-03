@@ -1,0 +1,39 @@
+{
+	"actions": [
+		{
+			"duration": {
+				"secs": 1,
+				"nanos": 250000000
+			},
+			"node": {
+				"action": "run-task",
+				"params": {
+					"target": "demo:build"
+				}
+			},
+			"operations": [
+				{
+					"meta": {
+						"type": "task-execution",
+						"command": "npm run build"
+					}
+				}
+			],
+			"status": "passed"
+		},
+		{
+			"duration": {
+				"secs": 0,
+				"nanos": 500000000
+			},
+			"node": {
+				"action": "run-task",
+				"params": {
+					"target": "demo:cached"
+				}
+			},
+			"operations": [],
+			"status": "cached-from-remote"
+		}
+	]
+}

@@ -4,9 +4,9 @@ async function main(): Promise<boolean> {
 	let anyErrors = false;
 
 	const workspaceRoot = await getWorkspaceRoot();
-	const ciReport = await readCiReport(workspaceRoot);
-	if (!ciReport) {
-		console.log("CI report file does not exist. No CI tasks may have been executed.");
+	const report = await readReport(workspaceRoot);
+	if (!report) {
+		console.log("Moon report file does not exist. No tasks may have been executed.");
 		return anyErrors;
 	}
 
@@ -14,7 +14,7 @@ async function main(): Promise<boolean> {
 	const taskActions: Array<{ action: Action; taskInfo: TaskInfo }> = [];
 	let maxDurationMs = 0;
 
-	for (const action of ciReport.actions) {
+	for (const action of report.actions) {
 		const taskInfo = taskInfoOf(action);
 		if (!taskInfo) {
 			continue;
@@ -30,7 +30,13 @@ async function main(): Promise<boolean> {
 	for (const { taskInfo } of taskActions) {
 		const { stdout, stderr } = await readStatus({ workspaceRoot, taskInfo });
 		const { project, task, command, status, duration } = taskInfo;
-		anyErrors = anyErrors || status === "failed";
+		anyErrors =
+			anyErrors ||
+			status === "failed" ||
+			status === "timed-out" ||
+			status === "aborted" ||
+			status === "invalid" ||
+			status === "failed-and-abort";
 		const target = `${project}:${task}`;
 		const histogram = ` ${status === "skipped" ? renderSkippedHistogram() : renderHistogram(duration, maxDurationMs)}`;
 		const durationStr = status !== "skipped" ? ` ${gray(`(${formatDuration(duration)}`)}` : "";
@@ -57,13 +63,15 @@ async function getWorkspaceRoot(): Promise<string> {
 	return process.cwd();
 }
 
-async function readCiReport(workspaceRoot: string): Promise<CiReport | undefined> {
-	const ciReportPath = `${workspaceRoot}/.moon/cache/ciReport.json`;
-	if (!(await fileExists(ciReportPath))) {
-		return;
+async function readReport(workspaceRoot: string): Promise<MoonReport | undefined> {
+	for (const fileName of ["ciReport.json", "runReport.json"]) {
+		const reportPath = `${workspaceRoot}/.moon/cache/${fileName}`;
+		if (await fileExists(reportPath)) {
+			const reportFile = await readFileContent(reportPath);
+			return JSON.parse(reportFile) as MoonReport;
+		}
 	}
-	const ciReportFile = await readFileContent(ciReportPath);
-	return JSON.parse(ciReportFile) as CiReport;
+	return;
 }
 
 function taskInfoOf(action: Action): undefined | TaskInfo {
@@ -84,7 +92,7 @@ type TaskInfo = {
 	project: string;
 	task: string;
 	command: undefined | string;
-	status: "failed" | "passed" | "skipped";
+	status: ActionStatus;
 	duration: { secs: number; nanos: number };
 };
 
@@ -140,10 +148,19 @@ function writeGroup(title: string, inner: (params: { println: (output: string) =
 	console.log("::endgroup::");
 }
 
-const statusBadges: Record<Action["status"], string> = {
+const statusBadges: Record<ActionStatus, string> = {
+	running: bgGreen(" RUNNING "),
 	passed: bgGreen(" PASS "),
+
+	"timed-out": bgRed(" TIMED OUT "),
 	failed: bgRed(" FAIL "),
+	aborted: bgRed(" ABORTED "),
+	invalid: bgRed(" INVALID "),
+	"failed-and-abort": bgRed(" FAILED AND ABORT "),
+
 	skipped: bgBlue(" SKIP "),
+	cached: bgBlue(" CACHED "),
+	"cached-from-remote": bgBlue(" REMOTE CACHED "),
 };
 
 function bgGreen(text: string): string {
@@ -245,18 +262,30 @@ export { formatDuration, renderHistogram };
 const stdoutBadge = bgDarkGray(`　${green("⏺")} STDOUT　`);
 const stderrBadge = bgDarkGray(`　${red("⏺")} STDERR　`);
 
-type CiReport = {
+type MoonReport = {
 	actions: Action[];
 };
 
 type Action = {
 	label: string;
 	nodeIndex: number;
-	status: "failed" | "passed" | "skipped";
+	status: ActionStatus;
 	node: Node;
 	operations: Operation[];
 	duration: { secs: number; nanos: number };
 };
+
+type ActionStatus =
+	| "running"
+	| "passed"
+	| "failed"
+	| "timed-out"
+	| "aborted"
+	| "invalid"
+	| "failed-and-abort"
+	| "skipped"
+	| "cached"
+	| "cached-from-remote";
 
 type Node =
 	| {

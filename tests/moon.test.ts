@@ -19,6 +19,17 @@ test("no-tasks", async () => {
 	expect(stderr).toMatchInlineSnapshot(`""`);
 });
 
+test("run-report", async () => {
+	const cwd = path.join(import.meta.dirname, "workspaces/run-report");
+	const { stdout, stderr } = await $({ cwd })`node ${indexJs}`;
+	expect(stdout).toContain("demo:build");
+	expect(stdout).toContain("(1s 250ms)");
+	expect(stdout).toContain("$ npm run build");
+	expect(stdout).toContain("REMOTE CACHED");
+	expect(stdout).toContain("demo:cached");
+	expect(stderr).toBe("");
+});
+
 test("formatDuration", () => {
 	// Zero duration
 	expect(formatDuration({ secs: 0, nanos: 0 })).toBe("0ms)");
@@ -105,4 +116,3 @@ test("renderHistogram", () => {
 	// Slowest task compared to itself → 100%
 	expect(renderHistogram({ secs: 0, nanos: 34_000_000 }, 34)).toBe("⣿⣿⣿⣿⣿");
 });
-

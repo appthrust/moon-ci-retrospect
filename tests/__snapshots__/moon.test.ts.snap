@@ -78,4 +78,4 @@ This is an error message
 ::endgroup::"
 `;
 
-exports[`no-tasks 1`] = `"CI report file does not exist. No CI tasks may have been executed."`;
+exports[`no-tasks 1`] = `"Moon report file does not exist. No tasks may have been executed."`;
